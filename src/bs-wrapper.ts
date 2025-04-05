@@ -979,6 +979,13 @@ export function reload(host: string, inputList: string[]): void {
     console.log(
       chalk`[{blue ${instance.name}}] Only styling was changed, try to inject`
     );
+    // e.g. jcr_root/apps/your_app/clientlibs/clientlib-site/resources/build/site.bundle.css
+    cssRelatedFiles.forEach(file => {
+      if (file.includes("jcr_root") && file.endsWith("site.bundle.css")) {
+          const strippedPath = file.substring(file.indexOf("jcr_root"));
+          cssToRefresh.push(strippedPath);
+      }
+    });
     bs.reload(cssToRefresh);
   } else {
     if (js) {
