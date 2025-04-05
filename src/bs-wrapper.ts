@@ -1013,7 +1013,8 @@ export function reload(host: string, inputList: string[]): void {
 
     // Only reload browser if JS filepath contains "resources".
     // Other JS files are bundled into the bundle clientlib located in the "resources" folder.
-    if (jsPaths.some(path => path.includes("resources"))) {
+    // OR: There is HTML or CSS files.
+    if (jsPaths.some(path => path.includes("resources")) || html || css) {
       bs.reload();
     }
 
