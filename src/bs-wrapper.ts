@@ -1011,8 +1011,11 @@ export function reload(host: string, inputList: string[]): void {
       instance.clientlibTree.jsTrees.resetLibs();
     }
 
-    // When js files have been invalidated, trigger reload
-    bs.reload();
+    // Only reload browser if JS filepath contains "resources".
+    // Other JS files are bundled into the bundle clientlib located in the "resources" folder.
+    if (jsPaths.some(path => path.includes("resources"))) {
+      bs.reload();
+    }
 
     // Update clientlibTree if something changed in the clientlib structure (do after reload since is needed for next update)
     // TODO make async
