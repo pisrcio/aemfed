@@ -8,6 +8,30 @@ import { ClientlibTree } from "./clientlib-tree";
 import * as messages from "./messages";
 import { StyleTrees } from "./style-trees";
 
+// Add function to read configuration file
+function readConfigFile(): any {
+  const configPath = path.resolve(process.cwd(), 'aemfed.config.json');
+  try {
+    // Read file synchronously
+    const configData = gfs.readFileSync(configPath, 'utf8');
+    try {
+      // Parse JSON
+      return JSON.parse(configData);
+    } catch (parseErr: unknown) {
+      const errorMessage = parseErr instanceof Error ? parseErr.message : String(parseErr);
+      console.log(chalk`[{yellow WARNING}] Error parsing configuration file: ${errorMessage}`);
+      return null;
+    }
+  } catch (err: unknown) {
+    // Type guard for Node's SystemError which has a 'code' property
+    if (err && typeof err === 'object' && 'code' in err && err.code !== 'ENOENT') {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      console.log(chalk`[{yellow WARNING}] Error reading configuration file: ${errorMessage}`);
+    }
+    return null;
+  }
+}
+
 export interface IWrapperConfig {
   bsOptions: browserSync.Options;
   jcrContentRoots: string[];
@@ -872,6 +896,14 @@ function createBsInstancePromise(
       ],
       target: instance.server
     };
+    
+    // Try to load configuration from current working directory
+    const configFile = readConfigFile();
+    if (configFile && configFile.bsOptions && configFile.bsOptions.serveStatic) {
+      bsOptions.serveStatic = configFile.bsOptions.serveStatic;
+      console.log(chalk`[{blue ${instance.name}}] Loaded serveStatic configuration from ${process.cwd()}/aemfed.config.json`);
+    }
+    
     bsOptions.port = instance.port;
     bsOptions.ui = {
       port: instance.port + 1
