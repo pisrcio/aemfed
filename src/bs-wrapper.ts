@@ -17,12 +17,12 @@ function readConfigFile(): any {
     try {
       // Parse JSON
       return JSON.parse(configData);
-    } catch (parseErr: unknown) {
+    } catch (parseErr) {
       const errorMessage = parseErr instanceof Error ? parseErr.message : String(parseErr);
       console.log(chalk`[{yellow WARNING}] Error parsing configuration file: ${errorMessage}`);
       return null;
     }
-  } catch (err: unknown) {
+  } catch (err) {
     // Type guard for Node's SystemError which has a 'code' property
     if (err && typeof err === 'object' && 'code' in err && err.code !== 'ENOENT') {
       const errorMessage = err instanceof Error ? err.message : String(err);
